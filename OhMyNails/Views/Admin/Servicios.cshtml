@@ -1,0 +1,37 @@
+﻿@model IEnumerable<OhMyNails.Models.Servicio>
+
+<h2>💅 Gestión de Servicios</h2>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Servicio</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+            <th>Editar</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var servicio in Model)
+        {
+            <tr>
+                <td>@servicio.Nombre</td>
+                <td>@servicio.Descripcion</td>
+                <td>$@servicio.Precio</td>
+                <td>
+                    <form asp-action="EditarServicio" method="post">
+                        <input type="hidden" name="Id" value="@servicio.Id" />
+                        <input type="text" name="Descripcion" value="@servicio.Descripcion" class="form-control mb-1" />
+                        <input type="number" name="Precio" value="@servicio.Precio" step="0.01" class="form-control mb-1" />
+                        <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Acceso Administrativo";
+}
+
+<div class="container mt-5">
+    <div class="card mx-auto shadow" style="max-width:400px;">
+        <div class="card-body text-center">
+            <h3 class="mb-3">🔐 Acceso Admin</h3>
+
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger">@ViewBag.Error</div>
+            }
+
+            <form method="post" action="/Access/Login">
+                <div class="mb-3">
+                    <input type="password" name="clave" class="form-control" placeholder="Ingrese la clave secreta" required />
+                </div>
+                <button type="submit" class="btn btn-dark w-100">Ingresar</button>
+            </form>
+        </div>
+    </div>
+</div>

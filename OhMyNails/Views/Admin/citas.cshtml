@@ -1,0 +1,36 @@
+﻿@model IEnumerable<OhMyNails.Models.CitaViewModel>
+
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>Cliente</th>
+            <th>Teléfono</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Categoría</th>
+            <th>Imagen</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var cita in Model)
+        {
+            <tr>
+                <td>@cita.Nombre</td>
+                <td>@cita.Telefono</td>
+                <td>@cita.Fecha.ToShortDateString()</td>
+                <td>@cita.Hora</td>
+                <td>@cita.Categoria</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(cita.ImagenReferencia))
+                    {
+                        <img src="@cita.ImagenReferencia" width="80" height="80" style="object-fit:cover; border-radius:6px;" />
+                    }
+                    else
+                    {
+                        <span class="text-muted">Sin imagen</span>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,85 @@
+﻿@{
+    ViewData["Title"] = "Softgel - OhMyNails";
+
+    // 🔹 Lista dinámica de imágenes (puedes agregar o quitar fácilmente)
+    var imagenesSoftgel = new List<string>
+    {
+        "~/imagenes/softgel1.jpeg",
+        "~/imagenes/softgel2.jpeg",
+        "~/imagenes/softgel3.jpeg",
+        "~/imagenes/softgel4.jpeg",
+        "~/imagenes/softgel5.jpeg",
+        "~/imagenes/softgel6.jpeg",
+        "~/imagenes/softgel7.jpeg"
+    };
+}
+
+<h2 class="text-center fw-bold text-pink mb-4" data-aos="fade-down">
+    UÑAS SOFTGEL
+</h2>
+
+<p class="text-center lead">Elegancia y resistencia para un acabado natural.</p>
+
+<!-- 🔹 Contenedor dinámico de imágenes -->
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var i in new[] { "softgel1.jpeg", "softgel2.jpeg", "softgel3.jpeg", "softgel4.jpeg", "softgel5.jpeg", "softgel6.jpeg", "softgel7.jpeg" })
+    {
+        <div class="col" data-aos="zoom-in">
+            <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden">
+                <div class="ratio ratio-1x1">
+                    <img src="~/imagenes/@i"
+                         class="card-img-top img-fluid object-fit-cover"
+                         alt="Diseño Softgel">
+                </div>
+                <div class="card-body text-center bg-white">
+                    <p class="fw-semibold text-muted mb-0">Diseño Softgel</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="text-center mt-4">
+    <a href="/" class="btn btn-outline-secondary mt-3">
+        <i class="bi bi-arrow-left"></i> Volver a inicio
+    </a>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background-color: #f5d8e4;
+            font-family: 'Poppins', sans-serif;
+            color: #66122a;
+        }
+
+        header {
+            background-color: #a92a4a;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .gallery-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .gallery-item:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            }
+
+        .btn-agendar {
+            background-color: #a92a4a;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 20px;
+            cursor: pointer;
+        }
+
+            .btn-agendar:hover {
+                background-color: #66122a;
+            }
+    </style>
+}

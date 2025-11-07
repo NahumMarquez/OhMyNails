@@ -1,0 +1,57 @@
+﻿@{
+    ViewData["Title"] = "Oh my Nails! - Home Studio";
+}
+
+<div class="text-center">
+    <img src="~/imagenes/logo-ohmynails..jpeg.jpeg" alt="Oh my Nails" width="200" />
+
+    <h2 class="mt-4">¡Bienvenida a Oh my Nails!</h2>
+    <p>Embellece tus uñas con el estilo que más te guste 💅</p>
+
+    <button class="btn-agendar" onclick="location.href='@Url.Action("Agendar", "Citas")'">
+        Agendar Cita
+    </button>
+</div>
+
+<hr class="my-5" />
+
+<div class="row text-center mt-5">
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm">
+            <h4>Softgel</h4>
+            <img src="~/imagenes/softgel1.jpeg" alt="Softgel" class="img-fluid rounded mb-3" />
+            <p>Uñas ligeras, naturales y duraderas.</p>
+            <p> $23 - $45 </p>
+            <button class="btn-agendar"
+                    onclick="location.href='@Url.Action("Softgel", "Home", new { categoria = "Softgel" })'">
+                Ver estilos
+            </button>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm">
+            <h4>Rubber Gel</h4>
+            <img src="~/imagenes/rubbergel1.jpeg" alt="Rubber Gel" class="img-fluid rounded mb-3" />
+            <p>Resistencia con acabado flexible.</p>
+            <p> $18 - $22 </p>
+            <button class="btn-agendar"
+                    onclick="location.href='@Url.Action("RubberGel", "Home", new { categoria = "Rubber Gel" })'">
+                Ver estilos
+            </button>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card p-3 shadow-sm">
+            <h4>Builder Gel</h4>
+            <img src="~/imagenes/buildergel1.jpeg" alt="Builder Gel" class="img-fluid rounded mb-3" />
+            <p>Ideal para extensiones y fuerza extra.</p>
+            <p> $20 - $30 </p>
+            <button class="btn-agendar"
+                    onclick="location.href='@Url.Action("BuilderGel", "Home", new { categoria = "Builder Gel" })'">
+                Ver estilos
+            </button>
+        </div>
+    </div>
+</div>

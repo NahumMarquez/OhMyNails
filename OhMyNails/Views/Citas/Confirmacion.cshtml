@@ -1,0 +1,33 @@
+﻿@model OhMyNails.Models.CitaViewModel
+
+@{
+    ViewData["Title"] = "Cita registrada";
+}
+
+<div class="container text-center my-5">
+    <div class="card shadow p-5 rounded-4">
+        <h2 class="text-success mb-3">💅 ¡Cita registrada con éxito!</h2>
+
+        <p><b>Cliente:</b> @Model.Nombre</p>
+        <p><b>Teléfono:</b> @Model.Telefono</p>
+        <p><b>Servicio:</b> @Model.Categoria</p>
+        <p><b>Fecha:</b> @Model.Fecha.ToString("dd/MM/yyyy")</p>
+        <p><b>Hora:</b> @Model.Hora</p>
+
+        <p class="mt-4 text-muted">Se está enviando la notificación por WhatsApp...</p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        window.onload = function() {
+            const whatsappUrl = "@TempData["WhatsappUrl"]";
+            if (whatsappUrl) {
+                // Esperar 1 segundo y abrir automáticamente WhatsApp
+                setTimeout(() => {
+                    window.open(whatsappUrl, "_blank");
+                }, 1000);
+            }
+        };
+    </script>
+}

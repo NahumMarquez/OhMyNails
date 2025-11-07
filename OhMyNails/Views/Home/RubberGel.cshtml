@@ -1,0 +1,58 @@
+﻿@{
+    ViewData["Title"] = "Rubber Gel - OhMyNails";
+
+    var imagenesRubberGel = new List<string>
+    {
+        "~/imagenes/rubbergel1.jpeg",
+        "~/imagenes/rubbergel2.jpeg",
+        "~/imagenes/rubbergel3.jpeg",
+        "~/imagenes/rubbergel4.jpeg",
+        "~/imagenes/rubbergel5.jpeg"
+    };
+}
+
+<h2 class="text-center fw-bold text-pink mb-4" data-aos="fade-down">UÑAS RUBBER GEL</h2>
+<p class="text-center lead">Flexibilidad, resistencia y un acabado profesional.</p>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    @foreach (var i in new[] { "rubbergel1.jpeg", "rubbergel2.jpeg", "rubbergel3.jpeg", "rubbergel4.jpeg", "rubbergel5.jpeg" })
+    {
+        <div class="col" data-aos="zoom-in">
+            <div class="card shadow-sm border-0 h-100 rounded-4 overflow-hidden">
+                <div class="ratio ratio-1x1">
+                    <img src="~/imagenes/@i"
+                         class="card-img-top img-fluid object-fit-cover"
+                         alt="Diseño Rubber Gel">
+                </div>
+                <div class="card-body text-center bg-white">
+                    <p class="fw-semibold text-muted mb-0">Diseño Rubber Gel</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="text-center mt-4">
+    <a href="/" class="btn btn-outline-secondary mt-3">
+        <i class="bi bi-arrow-left"></i> Volver a inicio
+    </a>
+</div>
+
+@section Styles {
+    <style>
+        body {
+            background-color: #f5d8e4;
+            font-family: 'Poppins', sans-serif;
+            color: #66122a;
+        }
+
+        .gallery-item {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+            .gallery-item:hover {
+                transform: scale(1.05);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            }
+    </style>
+}

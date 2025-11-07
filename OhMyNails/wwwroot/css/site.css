@@ -1,0 +1,42 @@
+body {
+    background-color: #f5d8e4; /* Rosa claro */
+    font-family: 'Poppins', sans-serif;
+    color: #66122a; /* Tonalidad vino */
+}
+
+header {
+    background-color: #a92a4a; /* Color principal del logo */
+    color: white;
+    padding: 1rem;
+    text-align: center;
+}
+
+.btn-agendar {
+    background-color: #a92a4a;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 20px;
+    cursor: pointer;
+}
+
+    .btn-agendar:hover {
+        background-color: #66122a;
+    }
+
+
+.object-fit-cover {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+    .object-fit-cover:hover {
+        transform: scale(1.05);
+    }
+
+.text-pink {
+    color: #e91e63;
+}
+

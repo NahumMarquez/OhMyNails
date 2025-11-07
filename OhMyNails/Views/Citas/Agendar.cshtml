@@ -1,0 +1,223 @@
+﻿@model OhMyNails.Models.CitaViewModel
+
+@{
+    ViewData["Title"] = "Agendar Cita";
+}
+
+<div class="container my-5">
+
+    <!-- SOLO EL ADMIN VE LAS CITAS REGISTRADAS -->
+    @if (Context.Session.GetString("Rol") == "Admin")
+    {
+        <div class="card mb-5" data-aos="zoom-in">
+            <div class="card-body">
+                @if (ViewBag.Citas == null || ((IEnumerable<OhMyNails.Models.Cita>)ViewBag.Citas).Count() == 0)
+                {
+                    <div class="text-center py-5">
+                        <i class="bi bi-calendar-x" style="font-size:48px;color:#c4c4c4"></i>
+                        <h4 class="mt-3">No hay citas registradas</h4>
+                    </div>
+                }
+                else
+                {
+                    <h4 class="text-center mb-3 text-dark fw-bold">📋 Citas Registradas</h4>
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Categoría</th>
+                                <th>Fecha</th>
+                                <th>Hora</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var c in (IEnumerable<OhMyNails.Models.Cita>)ViewBag.Citas)
+                            {
+                                <tr>
+                                    <td>@c.Nombre</td>
+                                    <td>@c.Categoria</td>
+                                    <td>@c.Fecha.ToString("dddd, dd MMM yyyy", new System.Globalization.CultureInfo("es-ES"))</td>
+                                    <td>@c.Hora</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- Formulario para nueva cita -->
+    <div class="card mx-auto shadow-lg border-0" style="max-width:720px;" data-aos="fade-up">
+        <div class="card-header bg-white border-0">
+            <h3 class="mb-0 text-center text-dark">
+                <i class="bi bi-calendar-plus text-primary"></i> Agendar Nueva Cita
+            </h3>
+        </div>
+
+        <div class="card-body">
+            @* Muestra errores de validación generales *@
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    <ul>
+                        @foreach (var err in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+                        {
+                            <li>@err.ErrorMessage</li>
+                        }
+                    </ul>
+                </div>
+            }
+
+            <form asp-controller="Citas" asp-action="Agendar" method="post" enctype="multipart/form-data" id="formCita">
+                @Html.AntiForgeryToken()
+
+                <!-- Nombre -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Nombre del Cliente</label>
+                    <input asp-for="Nombre" name="Nombre" class="form-control shadow-sm border-0 rounded-3"
+                           placeholder="Ej: Ana Pérez" />
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
+
+                <!-- Teléfono -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Número de Teléfono</label>
+                    <input asp-for="Telefono" name="Telefono" class="form-control shadow-sm border-0 rounded-3"
+                           placeholder="Ej: 7777-8888" />
+                    <span asp-validation-for="Telefono" class="text-danger"></span>
+                </div>
+
+                <!-- Categoría -->
+                <div class="mb-3" data-aos="fade-up" data-aos-delay="150">
+                    <label class="form-label fw-bold text-dark">Categoría de Uñas</label>
+                    <select asp-for="Categoria" name="Categoria" class="form-select shadow-sm border-0 rounded-3" style="max-width: 400px;">
+                        <option value="">Seleccione una categoría</option>
+                        <option>Softgel</option>
+                        <option>Rubber Gel</option>
+                        <option>Builder Gel</option>
+                    </select>
+                    <span asp-validation-for="Categoria" class="text-danger"></span>
+                </div>
+
+                <!-- Fecha -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Fecha</label>
+                    <input asp-for="Fecha" name="Fecha" type="date" class="form-control shadow-sm border-0 rounded-3"
+                           id="fechaInput" value="@Model.Fecha.ToString("yyyy-MM-dd")" min="@DateTime.Today.ToString("yyyy-MM-dd")" />
+                    <span asp-validation-for="Fecha" class="text-danger"></span>
+                </div>
+
+                <!-- Horario -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Horario</label>
+                    <select asp-for="Hora" name="Hora" class="form-select shadow-sm border-0 rounded-3" id="horarioSelect">
+                        <option value="">Selecciona una fecha</option>
+                    </select>
+                    <span asp-validation-for="Hora" class="text-danger"></span>
+                </div>
+
+                <!-- Imagen de referencia -->
+                <div class="mb-3">
+                    <label class="form-label fw-bold">Imagen de Referencia (opcional)</label>
+                    <input type="file" name="ImagenReferencia" class="form-control shadow-sm border-0 rounded-3" accept="image/*" />
+                    <small class="text-muted">Puedes subir una imagen del diseño que deseas.</small>
+                </div>
+
+                <!-- Botón -->
+                <button type="submit" class="btn btn-success btn-lg w-100 mt-3 shadow-sm">
+                    <i class="bi bi-check-circle"></i> Confirmar Cita
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        async function cargarHorarios(fecha) {
+            const select = document.getElementById("horarioSelect");
+            select.innerHTML = "<option>Cargando...</option>";
+            try {
+                const res = await fetch('/Citas/ObtenerHorarios?fecha=' + fecha);
+                const data = await res.json();
+                select.innerHTML = "";
+                if (!data.length) {
+                    select.innerHTML = "<option value=''>No hay horarios</option>";
+                    return;
+                }
+                data.forEach(h => {
+                    const opt = document.createElement("option");
+                    opt.value = h.hora;
+                    opt.text = h.hora + (h.disponible ? "" : " (OCUPADO)");
+                    if (!h.disponible) opt.disabled = true;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                select.innerHTML = "<option value=''>Error al cargar</option>";
+                console.error(err);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const fechaEl = document.getElementById("fechaInput");
+            if (fechaEl && fechaEl.value) {
+                cargarHorarios(fechaEl.value);
+            }
+
+            if (fechaEl) {
+                fechaEl.addEventListener('change', function () {
+                    cargarHorarios(this.value);
+                });
+            }
+
+            // Confirmación con SweetAlert2
+            const form = document.getElementById("formCita");
+            if (form) {
+                form.addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    const fecha = document.getElementById("fechaInput").value;
+                    const hora = document.getElementById("horarioSelect").value;
+                    const categoria = document.querySelector('select[name="Categoria"]').value;
+                    const nombre = document.querySelector('input[name="Nombre"]').value;
+                    const telefono = document.querySelector('input[name="Telefono"]').value;
+
+                    if (!nombre || !telefono || !categoria || !hora) {
+                        Swal.fire({
+                            icon: 'warning',
+                            title: 'Campos incompletos',
+                            text: 'Por favor, completa todos los campos antes de continuar.'
+                        });
+                        return;
+                    }
+
+                    Swal.fire({
+                        title: '¿Confirmar cita?',
+                        html: `
+                            <b>Cliente:</b> ${nombre}<br/>
+                            <b>Teléfono:</b> ${telefono}<br/>
+                            <b>Categoría:</b> ${categoria}<br/>
+                            <b>Fecha:</b> ${fecha}<br/>
+                            <b>Hora:</b> ${hora}
+                        `,
+                        icon: 'question',
+                        showCancelButton: true,
+                        confirmButtonText: 'Sí, agendar',
+                        cancelButtonText: 'Cancelar',
+                        confirmButtonColor: '#d63384',
+                        background: '#fffafc',
+                        color: '#333'
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            // submit real
+                            form.submit();
+                        }
+                    });
+                });
+            }
+        });
+    </script>
+}
