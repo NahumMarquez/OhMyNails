@@ -28,5 +28,8 @@ namespace OhMyNails.Models
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
 
         public string? Imagen { get; set; }
+        public string Estado { get; set; } = "Activa";
+
+        public string? ImagenReferencia { get; set; }
     }
 }

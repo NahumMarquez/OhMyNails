@@ -37,35 +37,35 @@ namespace OhMyNails.Controllers
                 Telefono = c.Telefono,
                 Fecha = c.Fecha,
                 Hora = c.Hora,
-                Categoria = c.Categoria
+                Categoria = c.Categoria,
+                ImagenReferencia = c.ImagenReferencia
             }).ToList();
 
             return View(viewModels);
         }
 
-        public IActionResult Servicios()
-        {
-            var usuario = HttpContext.Session.GetString("Rol");
-            if (usuario != "Admin")
-            {
-                return RedirectToAction("Login", "Access");
-            }
-
-            var servicios = _context.Servicios.ToList();
-            return View(servicios);
-        }
-
-
         [HttpPost]
-        public IActionResult EditarServicio(Servicio servicio)
+        public IActionResult CancelarCita(int id)
         {
-            if (ModelState.IsValid)
+            var cita = _context.Citas.FirstOrDefault(c => c.Id == id);
+            if (cita == null)
             {
-                _context.Servicios.Update(servicio);
-                _context.SaveChanges();
-                TempData["Mensaje"] = "Servicio actualizado correctamente.";
+                TempData["Mensaje"] = "❌ La cita no existe o ya fue cancelada.";
+                return RedirectToAction("Citas");
             }
-            return RedirectToAction("Servicios");
+
+            cita.Estado = "Cancelada";
+            _context.Citas.Update(cita);
+            _context.SaveChanges();
+
+            // ✅ Enviar mensaje por WhatsApp (enlace)
+            var mensaje = $"Hola {cita.Nombre}, tu cita del {cita.Fecha:dd/MM/yyyy} a las {cita.Hora} ha sido cancelada. 💅 - Oh My Nails";
+            var urlWhatsApp = $"https://wa.me/{cita.Telefono.Replace(" ", "").Replace("+", "")}?text={Uri.EscapeDataString(mensaje)}";
+
+            TempData["WhatsAppUrl"] = urlWhatsApp;
+            TempData["Mensaje"] = "La cita fue cancelada correctamente.";
+
+            return RedirectToAction("Citas");
         }
     }
 }

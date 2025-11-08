@@ -64,24 +64,27 @@ namespace OhMyNails.Controllers
                 return View(model);
             }
 
-            // Guardar imagen si viene
+            // Guardar imagen si fue subida
             string imagenRuta = null;
-            var file = Request.Form.Files.FirstOrDefault();
-            if (file != null && file.Length > 0)
+            if (Request.Form.Files.Count > 0)
             {
-                var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
-                if (!Directory.Exists(uploads))
-                    Directory.CreateDirectory(uploads);
-
-                var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
-                var filePath = Path.Combine(uploads, fileName);
-
-                using (var stream = new FileStream(filePath, FileMode.Create))
+                var file = Request.Form.Files[0];
+                if (file.Length > 0)
                 {
-                    file.CopyTo(stream);
-                }
+                    var uploads = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+                    if (!Directory.Exists(uploads))
+                        Directory.CreateDirectory(uploads);
 
-                imagenRuta = "/uploads/" + fileName;
+                    var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+                    var filePath = Path.Combine(uploads, fileName);
+
+                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    {
+                        file.CopyTo(stream);
+                    }
+
+                    imagenRuta = "/uploads/" + fileName;
+                }
             }
 
             var cita = new Cita
@@ -91,18 +94,28 @@ namespace OhMyNails.Controllers
                 Fecha = model.Fecha,
                 Hora = model.Hora,
                 Categoria = model.Categoria,
-                
+                ImagenReferencia = imagenRuta
             };
 
             _citaService.AgregarCita(cita);
+
+            string imagenUrl = null;
+            if (!string.IsNullOrEmpty(imagenRuta))
+            {
+                imagenUrl = $"{Request.Scheme}://{Request.Host}{imagenRuta}";
+            }
 
             string mensaje = $"💅 *Cita Agendada*\n" +
                      $"👤 Cliente: {cita.Nombre}\n" +
                      $"📞 Teléfono: {cita.Telefono}\n" +
                      $"💅 Servicio: {cita.Categoria}\n" +
                      $"🗓 Fecha: {cita.Fecha:dd/MM/yyyy}\n" +
-                     $"⏰ Hora: {cita.Hora}";
+                     $"⏰ Hora: {cita.Hora}"  ;
 
+            if (!string.IsNullOrEmpty(imagenUrl))
+            {
+                mensaje += $"\n🖼️ Imagen de referencia: {imagenUrl}";
+            }
             // Número de tu negocio
             string numeroNegocio = "50379888479";
 
@@ -130,7 +143,7 @@ namespace OhMyNails.Controllers
                 Fecha = cita.Fecha,
                 Hora = cita.Hora,
                 Categoria = cita.Categoria,
-                ImagenReferencia = cita.Imagen
+                ImagenReferencia = cita.ImagenReferencia
             };
 
             string mensaje = $"Hola {model.Nombre}! Tu cita en *Oh my Nails* fue confirmada para el {model.Fecha:dd/MM/yyyy} a las {model.Hora} ({model.Categoria}). 💅";
