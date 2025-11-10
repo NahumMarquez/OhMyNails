@@ -42,9 +42,6 @@ namespace OhMyNails.Controllers
         {
             Console.WriteLine("📩 POST Agendar invoked");
 
-            // logear contenidos recibidos (útil para debug)
-            Console.WriteLine($"Nombre='{model?.Nombre}', Telefono='{model?.Telefono}', Fecha='{model?.Fecha}', Hora='{model?.Hora}', Categoria='{model?.Categoria}'");
-
             if (!ModelState.IsValid)
             {
                 Console.WriteLine("❌ ModelState inválido:");
@@ -56,7 +53,6 @@ namespace OhMyNails.Controllers
                     }
                 }
 
-                // Si no es válido, recargamos las citas para admin y devolvemos la vista con model y errores
                 if (HttpContext.Session.GetString("Rol") == "Admin")
                 {
                     ViewBag.Citas = _context.Citas.ToList();

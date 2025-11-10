@@ -33,18 +33,22 @@ namespace OhMyNails.Controllers
             var citas = _citaService.ObtenerCitas();
             var viewModels = citas.Select(c => new CitaViewModel
             {
+                Id = c.Id,
                 Nombre = c.Nombre,
                 Telefono = c.Telefono,
                 Fecha = c.Fecha,
                 Hora = c.Hora,
                 Categoria = c.Categoria,
-                ImagenReferencia = c.ImagenReferencia
+                ImagenReferencia = c.ImagenReferencia,
+                 Estado = c.Estado
             }).ToList();
 
             return View(viewModels);
         }
 
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult CancelarCita(int id)
         {
             var cita = _context.Citas.FirstOrDefault(c => c.Id == id);
@@ -54,18 +58,25 @@ namespace OhMyNails.Controllers
                 return RedirectToAction("Citas");
             }
 
+            // Marcar cancelada en BD
             cita.Estado = "Cancelada";
             _context.Citas.Update(cita);
             _context.SaveChanges();
 
-            // ✅ Enviar mensaje por WhatsApp (enlace)
+            // Preparar y limpiar número para wa.me
             var mensaje = $"Hola {cita.Nombre}, tu cita del {cita.Fecha:dd/MM/yyyy} a las {cita.Hora} ha sido cancelada. 💅 - Oh My Nails";
-            var urlWhatsApp = $"https://wa.me/{cita.Telefono.Replace(" ", "").Replace("+", "")}?text={Uri.EscapeDataString(mensaje)}";
+            var numeroLimpio = cita.Telefono?.Replace(" ", "").Replace("-", "").Replace("+", "") ?? "";
+            if (!numeroLimpio.StartsWith("503")) // si no trae código, agrega 503 (El Salvador)
+            {
+                numeroLimpio = "503" + numeroLimpio;
+            }
+            var urlWhatsApp = $"https://wa.me/{numeroLimpio}?text={Uri.EscapeDataString(mensaje)}";
 
             TempData["WhatsAppUrl"] = urlWhatsApp;
-            TempData["Mensaje"] = "La cita fue cancelada correctamente.";
+            TempData["Mensaje"] = $"La cita de {cita.Nombre} fue cancelada correctamente.";
 
             return RedirectToAction("Citas");
         }
+
     }
 }

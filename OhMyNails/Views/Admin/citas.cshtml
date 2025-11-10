@@ -1,7 +1,22 @@
 ﻿@model IEnumerable<OhMyNails.Models.CitaViewModel>
 
-<table class="table table-hover">
-    <thead>
+<h2 class="mb-4">📅 Administrar Citas</h2>
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Mensaje"]
+        @if (TempData["WhatsAppUrl"] != null)
+        {
+            <a href="@TempData["WhatsAppUrl"]" target="_blank" class="btn btn-success btn-sm ms-2">
+                📱 Ver/Enviar WhatsApp
+            </a>
+        }
+    </div>
+}
+
+<table class="table table-hover align-middle">
+    <thead class="table-light">
         <tr>
             <th>Cliente</th>
             <th>Teléfono</th>
@@ -9,12 +24,14 @@
             <th>Hora</th>
             <th>Categoría</th>
             <th>Imagen</th>
+            <th>Estado</th>
+            <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var cita in Model)
         {
-            <tr>
+            <tr class="@(cita.Estado == "Cancelada" ? "table-danger" : "")">
                 <td>@cita.Nombre</td>
                 <td>@cita.Telefono</td>
                 <td>@cita.Fecha.ToShortDateString()</td>
@@ -30,7 +47,45 @@
                         <span class="text-muted">Sin imagen</span>
                     }
                 </td>
+                <td>
+                    @if (cita.Estado == "Cancelada")
+                    {
+                        <span class="badge bg-danger">Cancelada</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-success">Activa</span>
+                    }
+                </td>
+                <td>
+                    @if (cita.Estado != "Cancelada")
+                    {
+                        <form asp-action="CancelarCita" method="post" style="display:inline;">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@cita.Id" />
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas cancelar esta cita?');">
+                                ❌ Cancelar
+                            </button>
+                        </form>
+                    }
+                    else
+                    {
+                        <span class="text-muted">—</span>
+                    }
+                </td>
             </tr>
         }
     </tbody>
 </table>
+
+@section Scripts {
+    <script>
+        // Si TempData contiene la URL de WhatsApp, la abrimos en nueva pestaña
+        @if (TempData["WhatsAppUrl"] != null)
+        {
+                <text>
+                    window.open("@TempData["WhatsAppUrl"]", "_blank");
+                </text>
+        }
+    </script>
+}

@@ -6,6 +6,7 @@ namespace OhMyNails.Models
 {
     public class CitaViewModel
     {
+        public int Id { get; set; }
         [Required]
         public string Nombre { get; set; }
 
@@ -41,6 +42,7 @@ namespace OhMyNails.Models
         };
 
         public string? ImagenReferencia { get; set; }
+        public string Estado { get; set; }
 
     }
 }
