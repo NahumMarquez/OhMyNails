@@ -3,7 +3,6 @@ using OhMyNails.Data;
 using OhMyNails.Models;
 using OhMyNails.Services;
 
-
 namespace OhMyNails.Controllers
 {
     public class AdminController : Controller
@@ -30,7 +29,10 @@ namespace OhMyNails.Controllers
                 return RedirectToAction("Login", "Access");
             }
 
-            var citas = _citaService.ObtenerCitas();
+            var citas = _citaService.ObtenerCitas()
+           .OrderBy(c => c.Fecha)
+           .ThenBy(c => TimeSpan.Parse(c.Hora))
+           .ToList();
             var viewModels = citas.Select(c => new CitaViewModel
             {
                 Id = c.Id,
@@ -40,12 +42,11 @@ namespace OhMyNails.Controllers
                 Hora = c.Hora,
                 Categoria = c.Categoria,
                 ImagenReferencia = c.ImagenReferencia,
-                 Estado = c.Estado
+                Estado = c.Estado
             }).ToList();
 
             return View(viewModels);
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -58,25 +59,53 @@ namespace OhMyNails.Controllers
                 return RedirectToAction("Citas");
             }
 
-            // Marcar cancelada en BD
+            // 🔹 Marcar cancelada
             cita.Estado = "Cancelada";
             _context.Citas.Update(cita);
             _context.SaveChanges();
 
-            // Preparar y limpiar número para wa.me
+            // 🔹 Generar enlace de WhatsApp
             var mensaje = $"Hola {cita.Nombre}, tu cita del {cita.Fecha:dd/MM/yyyy} a las {cita.Hora} ha sido cancelada. 💅 - Oh My Nails";
             var numeroLimpio = cita.Telefono?.Replace(" ", "").Replace("-", "").Replace("+", "") ?? "";
-            if (!numeroLimpio.StartsWith("503")) // si no trae código, agrega 503 (El Salvador)
-            {
+            if (!numeroLimpio.StartsWith("503"))
                 numeroLimpio = "503" + numeroLimpio;
-            }
+
             var urlWhatsApp = $"https://wa.me/{numeroLimpio}?text={Uri.EscapeDataString(mensaje)}";
 
-            TempData["WhatsAppUrl"] = urlWhatsApp;
-            TempData["Mensaje"] = $"La cita de {cita.Nombre} fue cancelada correctamente.";
-
-            return RedirectToAction("Citas");
+            // ✅ En lugar de solo redirigir, abrimos WhatsApp directamente
+            return Redirect(urlWhatsApp);
         }
 
+        // ✅ NUEVA ACCIÓN: Eliminar Citas Pasadas o Canceladas
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EliminarCita(int id)
+        {
+            var cita = _context.Citas.FirstOrDefault(c => c.Id == id);
+            if (cita == null)
+            {
+                TempData["Mensaje"] = "⚠️ La cita ya no existe.";
+                return RedirectToAction("Citas");
+            }
+
+            // 🔹 Verifica si la cita ya pasó o está cancelada
+            bool citaPasada = cita.Fecha < DateTime.Today ||
+                              (cita.Fecha == DateTime.Today && TimeSpan.Parse(cita.Hora) < DateTime.Now.TimeOfDay);
+
+            bool citaCancelada = cita.Estado?.Equals("Cancelada", StringComparison.OrdinalIgnoreCase) == true;
+
+            if (!citaPasada && !citaCancelada)
+            {
+                TempData["Mensaje"] = "⛔ Solo se pueden eliminar citas que ya hayan pasado o que estén canceladas.";
+                return RedirectToAction("Citas");
+            }
+
+            // 🔹 Eliminar cita
+            _context.Citas.Remove(cita);
+            _context.SaveChanges();
+
+            TempData["Mensaje"] = $"🗑️ La cita de {cita.Nombre} fue eliminada correctamente.";
+            return RedirectToAction("Citas");
+        }
     }
 }

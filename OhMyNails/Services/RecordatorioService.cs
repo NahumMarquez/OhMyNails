@@ -38,7 +38,7 @@ namespace OhMyNails.Services
 
                 // 🔁 Esperar solo 1 minuto entre verificaciones (para pruebas)
                 _logger.LogInformation("⏱ Esperando 1 minuto para la siguiente verificación...");
-                await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromMinutes(2880), stoppingToken);
             }
         }
 

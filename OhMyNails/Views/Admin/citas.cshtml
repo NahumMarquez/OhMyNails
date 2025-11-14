@@ -1,91 +1,109 @@
-﻿@model IEnumerable<OhMyNails.Models.CitaViewModel>
+﻿@model List<OhMyNails.Models.CitaViewModel>
 
-<h2 class="mb-4">📅 Administrar Citas</h2>
-
-@if (TempData["Mensaje"] != null)
-{
-    <div class="alert alert-success">
-        @TempData["Mensaje"]
-        @if (TempData["WhatsAppUrl"] != null)
-        {
-            <a href="@TempData["WhatsAppUrl"]" target="_blank" class="btn btn-success btn-sm ms-2">
-                📱 Ver/Enviar WhatsApp
-            </a>
-        }
-    </div>
+@{
+    ViewData["Title"] = "Citas";
 }
 
-<table class="table table-hover align-middle">
-    <thead class="table-light">
-        <tr>
-            <th>Cliente</th>
-            <th>Teléfono</th>
-            <th>Fecha</th>
-            <th>Hora</th>
-            <th>Categoría</th>
-            <th>Imagen</th>
-            <th>Estado</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var cita in Model)
-        {
-            <tr class="@(cita.Estado == "Cancelada" ? "table-danger" : "")">
-                <td>@cita.Nombre</td>
-                <td>@cita.Telefono</td>
-                <td>@cita.Fecha.ToShortDateString()</td>
-                <td>@cita.Hora</td>
-                <td>@cita.Categoria</td>
-                <td>
-                    @if (!string.IsNullOrEmpty(cita.ImagenReferencia))
-                    {
-                        <img src="@cita.ImagenReferencia" width="80" height="80" style="object-fit:cover; border-radius:6px;" />
-                    }
-                    else
-                    {
-                        <span class="text-muted">Sin imagen</span>
-                    }
-                </td>
-                <td>
-                    @if (cita.Estado == "Cancelada")
-                    {
-                        <span class="badge bg-danger">Cancelada</span>
-                    }
-                    else
-                    {
-                        <span class="badge bg-success">Activa</span>
-                    }
-                </td>
-                <td>
-                    @if (cita.Estado != "Cancelada")
-                    {
-                        <form asp-action="CancelarCita" method="post" style="display:inline;">
-                            @Html.AntiForgeryToken()
-                            <input type="hidden" name="id" value="@cita.Id" />
-                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro que deseas cancelar esta cita?');">
-                                ❌ Cancelar
-                            </button>
-                        </form>
-                    }
-                    else
-                    {
-                        <span class="text-muted">—</span>
-                    }
-                </td>
+<div class="container mt-4">
+    <h2 class="text-center mb-4">📅 Gestión de Citas</h2>
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-info text-center">@TempData["Mensaje"]</div>
+    }
+
+    <table class="table table-bordered text-center" style="background-color: #f9c9d5;">
+        <thead style="background-color: #f4a4b5; color: white;">
+            <tr>
+                <th>Cliente</th>
+                <th>Teléfono</th>
+                <th>Fecha</th>
+                <th>Hora</th>
+                <th>Categoría</th>
+                <th>Imagen</th>
+                <th>Estado</th>
+                <th>Acciones</th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var cita in Model)
+            {
+                bool citaPasada = cita.Fecha < DateTime.Today ||
+                (cita.Fecha == DateTime.Today && TimeSpan.Parse(cita.Hora) < DateTime.Now.TimeOfDay);
+                bool citaCancelada = cita.Estado?.ToLower() == "cancelada";
 
-@section Scripts {
-    <script>
-        // Si TempData contiene la URL de WhatsApp, la abrimos en nueva pestaña
-        @if (TempData["WhatsAppUrl"] != null)
-        {
-                <text>
-                    window.open("@TempData["WhatsAppUrl"]", "_blank");
-                </text>
-        }
-    </script>
-}
+                <tr style="background-color:@(citaCancelada ? "#e9b7b7" : "#f7cfe2")">
+                    <td>@cita.Nombre</td>
+                    <td>@cita.Telefono</td>
+                    <td>@cita.Fecha.ToShortDateString()</td>
+                    <td>@cita.Hora</td>
+                    <td>@cita.Categoria</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(cita.ImagenReferencia))
+                        {
+                            <img src="@cita.ImagenReferencia" alt="Referencia" width="70" height="70" style="border-radius:10px;">
+                        }
+                        else
+                        {
+                            <span>—</span>
+                        }
+                    </td>
+                    <td>
+                        @if (cita.Estado == "Activa")
+                        {
+                            <span class="badge bg-success">Activa</span>
+                        }
+                        else if (cita.Estado == "Cancelada")
+                        {
+                            <span class="badge bg-danger">Cancelada</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@cita.Estado</span>
+                        }
+                    </td>
+                    <td>
+                        @if (cita.Estado == "Activa")
+                        {
+                            <form asp-action="CancelarCita" asp-controller="Admin" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@cita.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    ❌ Cancelar
+                                </button>
+                            </form>
+                        }
+                        else if (citaCancelada || citaPasada)
+                        {
+                            <form asp-action="EliminarCita" asp-controller="Admin" method="post" style="display:inline;">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@cita.Id" />
+                                <button type="submit" class="btn btn-secondary btn-sm">
+                                    🗑️ Eliminar
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span>—</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    @if (TempData["WhatsAppUrl"] != null)
+    {
+        <script>
+            // 🚀 Redirigir automáticamente a WhatsApp después de cancelar cita
+            window.onload = function () {
+                window.open("@TempData["WhatsAppUrl"]", "_blank");
+            };
+        </script>
+
+        <div class="text-center mt-3">
+            <a href="@TempData["WhatsAppUrl"]" target="_blank" class="btn btn-success">📱 Enviar mensaje por WhatsApp</a>
+        </div>
+    }
+</div>
